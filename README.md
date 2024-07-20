@@ -1,2 +1,4 @@
-# Personal_Website
-Personal website made using flask and bootstrap
+# Inventory_management
+Web application for inventory management
+This is made using Flask
+
