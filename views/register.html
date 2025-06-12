@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chitragupta - Registration</title>
+    <link rel="stylesheet" href="/app/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Window Chrome -->
+    <div class="window-chrome">
+        <div class="window-title">
+            <span>🤖</span>
+            Chitragupta - User Registration
+        </div>
+        <div class="window-controls">
+            <div class="control-btn close"></div>
+            <div class="control-btn minimize"></div>
+            <div class="control-btn maximize"></div>
+        </div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card registration">
+            <div class="auth-header">
+                <div class="logo">CHITRAGUPTA</div>
+                <div class="auth-subtitle">NEW USER REGISTRATION</div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('auth.register') }}" method="POST" class="auth-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">👤 USERNAME</label>
+                        <input type="text" class="form-input" name="username" placeholder="Choose username" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📧 EMAIL ADDRESS</label>
+                        <input type="email" class="form-input" name="email" placeholder="Enter email" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🔐 ACCESS CODE</label>
+                    <input type="password" class="form-input" name="password" placeholder="Create secure password"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">📱 COMMUNICATION DEVICE (SMS ALERTS)</label>
+                    <input type="tel" class="form-input" name="phone_number" placeholder="+1234567890 (Optional)">
+                </div>
+                <button type="submit" class="auth-btn primary">CREATE USER PROFILE</button>
+            </form>
+
+            <div class="auth-links">
+                <a href="{{ url_for('auth.login') }}" class="auth-link">🔙 RETURN TO LOGIN</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chitragupta - Mission Control</title>
+    <link rel="stylesheet" href="/app/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Window Chrome -->
+    <div class="window-chrome">
+        <div class="window-title">
+            <span>🤖</span>
+            Chitragupta - Mission Control
+        </div>
+        <div class="window-controls">
+            <div class="control-btn close"></div>=
+            <div class="control-btn minimize"></div>
+            <div class="control-btn maximize"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">CHITRAGUPTA</div>
+            <div class="user-info">
+                <span>AGENT: {{ current_user.username.upper() }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">🚪 LOGOUT</a>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>ONLINE - SMS ALERTS ACTIVE</span>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Task Panel -->
+            <div class="task-panel">
+                <div class="panel-header">
+                    <div class="panel-title">ACTIVE MISSIONS</div>
+                    <button class="add-task-btn" onclick="openAddTaskModal()">+ NEW MISSION</button>
+                </div>
+                <div class="task-list" id="taskList">
+                    {% if tasks %}
+                    {% for task in tasks %}
+                    <div class="task-item {{ task.status.lower().replace(' ', '-') }}-priority">
+                        <div class="task-header">
+                            <div class="task-title">{{ task.name }}</div>
+                            <div class="task-priority {{ task.status.lower().replace(' ', '-') }}">{{
+                                task.status.upper() }}</div>
+                        </div>
+                        {% if task.description %}
+                        <div class="task-description">{{ task.description }}</div>
+                        {% endif %}
+                        <div class="task-meta">
+                            <div class="task-due">
+                                {% if task.deadline %}
+                                ⏰ {{ task.deadline.strftime('%Y-%m-%d %H:%M') }}
+                                {% else %}
+                                📅 No deadline set
+                                {% endif %}
+                            </div>
+                            <div class="task-actions">
+                                <form action="{{ url_for('tasks.update_task', task_id=task.id) }}" method="POST"
+                                    style="display: inline;">
+                                    <select name="status" class="status-select">
+                                        <option value="Pending" {% if task.status=='Pending' %}selected{% endif %}>
+                                            Pending</option>
+                                        <option value="In Progress" {% if task.status=='In Progress' %}selected{% endif
+                                            %}>In Progress</option>
+                                        <option value="Completed" {% if task.status=='Completed' %}selected{% endif %}>
+                                            Completed</option>
+                                    </select>
+                                    <button type="submit" class="action-btn complete">UPDATE</button>
+                                </form>
+                                <a href="{{ url_for('tasks.delete_task', task_id=task.id) }}"
+                                    class="action-btn delete">TERMINATE</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div style="text-align: center; padding: 40px; color: rgba(0, 212, 255, 0.5);">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📋</div>
+                        <div>No active missions. Create your first task!</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Statistics -->
+                <div class="sidebar-card">
+                    <div class="card-title">📊 MISSION STATISTICS</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-number">{{ tasks|length }}</span>
+                            <div class="stat-label">TOTAL</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ tasks|selectattr('status', 'equalto', 'Completed')|list|length
+                                }}</span>
+                            <div class="stat-label">COMPLETED</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ tasks|selectattr('status', 'equalto', 'Pending')|list|length
+                                }}</span>
+                            <div class="stat-label">PENDING</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ tasks|selectattr('status', 'equalto', 'In
+                                Progress')|list|length }}</span>
+                            <div class="stat-label">ACTIVE</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMS Settings -->
+                <div class="sidebar-card">
+                    <div class="card-title">📱 SMS ALERTS</div>
+                    <div class="sms-settings">
+                        <div class="setting-row">
+                            <span>Task Reminders</span>
+                            <div class="toggle-switch active"></div>
+                        </div>
+                        <div class="setting-row">
+                            <span>Deadline Alerts</span>
+                            <div class="toggle-switch active"></div>
+                        </div>
+                        <div class="setting-row">
+                            <span>Daily Summary</span>
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="sidebar-card">
+                    <div class="card-title">⚡ QUICK ACTIONS</div>
+                    <div class="quick-actions">
+                        <button class="quick-btn">📅 Today's Missions</button>
+                        <button class="quick-btn">⚠️ Overdue Tasks</button>
+                        <button class="quick-btn">💾 Export Data</button>
+                        <button class="quick-btn">🗑️ Clear Completed</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div class="modal" id="addTaskModal">
+        <div class="modal-content">
+            <div class="modal-title">CREATE NEW MISSION</div>
+            <form action="{{ url_for('tasks.add_task') }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Mission Title</label>
+                    <input type="text" class="form-input" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mission Brief</label>
+                    <textarea class="form-textarea" name="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mission Deadline</label>
+                    <input type="datetime-local" class="form-input" name="deadline">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn secondary" onclick="closeAddTaskModal()">CANCEL</button>
+                    <button type="submit" class="modal-btn primary">CREATE MISSION</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openAddTaskModal() {
+            document.getElementById('addTaskModal').style.display = 'flex';
+        }
+
+        function closeAddTaskModal() {
+            document.getElementById('addTaskModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('addTaskModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>
