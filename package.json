@@ -1,0 +1,21 @@
+{
+  "name": "Chitragupta",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/SS-S3/Chitragupta",
+  "author": "<soumyashekhar.dtu27@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^6.9.0",
+    "@supabase/supabase-js": "^2.50.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "stripe": "^18.2.1",
+    "twilio": "^5.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "prisma": "^6.9.0"
+  }
+}
